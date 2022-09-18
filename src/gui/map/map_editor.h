@@ -74,6 +74,7 @@ class Symbol;
 class SymbolWidget;
 class Template;
 class TemplateListWidget;
+class CourseGenWidget;
 
 
 /**
@@ -358,6 +359,9 @@ public slots:
 	void templateAvailabilityChanged();
 	/** Adjusts action availability based on the presence of closed templates */
 	void closedTemplateAvailabilityChanged();
+
+	/** Shows or hides the CourseGen dock widget. */
+	void showCourseGenWindow(bool show);
 	
 	/** Shows or hides the tags editor dock widget. */
 	void showTagsWindow(bool show);
@@ -663,6 +667,8 @@ private:
 	
 	void createTemplateWindow();
 	
+	void createCourseGenWindow();
+	
 	void createTagEditor();
 	
 	QAction* newAction(const char* id, const QString& tr_text, QObject* receiver, const char* slot, const char* icon = nullptr, const QString& tr_tip = QString{}, const char* whats_this_link = nullptr);
@@ -761,6 +767,10 @@ private:
 	TemplateListWidget* template_list_widget;
 	QAction* open_template_act = {};
 	QAction* reopen_template_act = {};
+	
+	QAction* coursegen_window_act = {};
+	QPointer<QWidget> coursegen_dock_widget;
+	CourseGenWidget* coursegen_widget;
 	
 	QAction* tags_window_act = {};
 	QPointer<EditorDockWidget> tags_dock_widget;

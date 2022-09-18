@@ -130,6 +130,7 @@
 #include "gui/widgets/action_grid_bar.h"
 #include "gui/widgets/color_list_widget.h"
 #include "gui/widgets/compass_display.h"
+#include "gui/widgets/coursegen_widget.h"
 #include "gui/widgets/key_button_bar.h" // IWYU pragma: keep
 #include "gui/widgets/measure_widget.h"
 #include "gui/widgets/symbol_widget.h"
@@ -1027,6 +1028,8 @@ void MapEditorController::createActions()
 	//QAction* template_visibilities_window_act = newCheckAction("templatevisibilitieswindow", tr("Template visibilities window"), this, SLOT(showTemplateVisbilitiesWindow(bool)), "window-new", tr("Show/Hide the template visibilities window"));
 	open_template_act = newAction("opentemplate", tr("Open template..."), this, SLOT(openTemplateClicked()), nullptr, QString{}, "templates_menu.html");
 	reopen_template_act = newAction("reopentemplate", tr("Reopen template..."), this, SLOT(reopenTemplateClicked()), nullptr, QString{}, "templates_menu.html");
+
+	coursegen_window_act = newCheckAction("coursegenwindow", tr("CourseGen window"), this, SLOT(showCourseGenWindow(bool)), nullptr, QString{}, nullptr);
 	
 	tags_window_act = newCheckAction("tagswindow", tr("Tag editor"), this, SLOT(showTagsWindow(bool)), "window-new", tr("Show/Hide the tag editor window"), "tag_editor.html");
 	
@@ -1278,6 +1281,10 @@ void MapEditorController::createMenuAndToolbars()
 	template_menu->addAction(open_template_act);
 	template_menu->addAction(reopen_template_act);
 	
+	// CourseGen menu
+	QMenu* coursegen_menu = window->menuBar()->addMenu(tr("&CourseGen"));
+	coursegen_menu->addAction(coursegen_window_act);
+
 	// Extend and activate general toolbar
 	QToolBar* main_toolbar = window->getGeneralToolBar();
 #ifdef QT_PRINTSUPPORT_LIB
@@ -2339,6 +2346,31 @@ void MapEditorController::closedTemplateAvailabilityChanged()
 {
 	if (reopen_template_act)
 		reopen_template_act->setEnabled(map->getNumClosedTemplates() > 0);
+}
+
+void MapEditorController::createCourseGenWindow()
+{
+	Q_ASSERT(!coursegen_dock_widget);
+
+	coursegen_widget = new CourseGenWidget(*map, *main_view, *this);
+
+	auto* dock_widget = new EditorDockWidget(tr("CourseGen"), coursegen_window_act, this, window);
+	dock_widget->setWidget(coursegen_widget);
+	dock_widget->setObjectName(QString::fromLatin1("CourseGen dock widget"));
+	if (!window->restoreDockWidget(dock_widget))
+		window->addDockWidget(Qt::RightDockWidgetArea, dock_widget, Qt::Vertical);
+	dock_widget->setVisible(false);
+
+	coursegen_dock_widget = dock_widget;
+}
+
+void MapEditorController::showCourseGenWindow(bool show)
+{
+	if (!coursegen_dock_widget)
+		createCourseGenWindow();
+	
+	coursegen_window_act->setChecked(show);
+	coursegen_dock_widget->setVisible(show);
 }
 
 void MapEditorController::createTagEditor()
